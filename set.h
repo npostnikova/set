@@ -4,7 +4,6 @@
 #include "tree.h"
 #include "my_iterator.h"
 #include <utility>
-#include <iostream>
 
 template <typename T>
 struct set {
@@ -90,8 +89,9 @@ std::pair<typename set<T>::const_iterator, bool> set<T>::insert(T const &key) {
 template <typename T>
 typename set<T>::const_iterator
 set<T>::erase(const_iterator pos) {
-    set_tree.erase(*pos);
-    return myiterator(set_tree.erase(*pos), &set_tree.last_elem);
+    if (auto tmp = set_tree.erase(*pos))
+        return myiterator(tmp, &set_tree.last_elem);
+    return end();
 }
 
 template <typename T>
