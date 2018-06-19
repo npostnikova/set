@@ -15,15 +15,13 @@ struct tree {
 
     tree() : last_elem(), root(nullptr) {}
 
-    //template <typename C/*, typename = typename std::enable_if<std::is_same<T, const C>::value>::type*/>
     tree(const tree<T>& other) : last_elem(), root(nullptr) {
-        //std::cout << "rrr" << std::endl;
         if (other.empty()) {
             return;
         }
         root = build_tree(root, other.root, *this, other);
-        //std::cout << (other.root == nullptr);
     }
+
     bool empty() const {
         return !root;
     }
@@ -222,34 +220,20 @@ struct tree {
 template <typename Y>
 void swap(tree<Y> &first, tree<Y> &second) {
     using std::swap;
-    if (first.root && second.root) {
-        swap(first.root->left->parent, second.root->left->parent);
-        swap(second.root->right->parent, second.root->right->parent);
-    }
-    if (!first.root ^ !second.root) {
-        if (!first.root) {
-            second.root->left->parent = first.root;
-            second.root->right->parent = first.root;
-        } else {
-            first.root->left->parent = second.root;
-            first.root->right->parent = second.root;
-        }
-    }
+    node_without_data *flp = first.root && first.root->left ? first.root->left->parent : nullptr;
+    node_without_data *frp = first.root && first.root->right ? first.root->right->parent : nullptr;
+    node_without_data *slp = second.root && second.root->left ? second.root->left->parent : nullptr;
+    node_without_data *srp = second.root && second.root->right ? second.root->right->parent : nullptr;
+
+    swap(flp, slp);
+    swap(frp, srp);
     swap(first.root, second.root);
+
     node_without_data *t1, *t2;
-    if (first.last_elem.parent) {
-        if (first.last_elem.parent->left == &first.last_elem)
-            first.last_elem.parent->left = &second.last_elem;
-        else
-            first.last_elem.parent->right = &second.last_elem;
-    }
-    if (second.last_elem.parent) {
-        if (second.last_elem.parent->left == &second.last_elem)
-            second.last_elem.parent->left = &first.last_elem;
-        else
-            second.last_elem.parent->right = &first.last_elem;
-    }
-    //swap(first.last_elem.parent, second.last_elem.parent);
+    if (first.last_elem.has_parent())
+        first.last_elem.get_parents_ref() = &second.last_elem;
+    if (second.last_elem.has_parent())
+        second.last_elem.get_parents_ref() = &first.last_elem;
     swap(first.last_elem, second.last_elem);
 }
 

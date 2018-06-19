@@ -4,16 +4,17 @@
 #include "tree.h"
 #include "my_iterator.h"
 #include <utility>
+#include <iostream>
 
 template <typename T>
 struct set {
-    typedef my_iterator<T> nonconst_iterator;
+    typedef my_iterator<T> myiterator;
 
     typedef my_iterator<const T> const_iterator;
 
     typedef const_iterator iterator;
 
-    typedef std::reverse_iterator<nonconst_iterator> reverse_iterator;
+    typedef std::reverse_iterator<myiterator> reverse_iterator;
 
     typedef std::reverse_iterator<const_iterator> reverse_const_iterator;
 
@@ -51,7 +52,7 @@ struct set {
 
     reverse_const_iterator rend() const;
 
-///private:
+private:
     tree<T> set_tree;
 };
 
@@ -90,19 +91,22 @@ template <typename T>
 typename set<T>::const_iterator
 set<T>::erase(const_iterator pos) {
     set_tree.erase(*pos);
-    return nonconst_iterator(set_tree.erase(*pos), &set_tree.last_elem);
+    return myiterator(set_tree.erase(*pos), &set_tree.last_elem);
 }
 
 template <typename T>
 typename set<T>::const_iterator set<T>::find(T const &key) const {
     auto res = set_tree.find(key);
-    return res ? nonconst_iterator(set_tree.find(key), &set_tree.last_elem) : end();
+    return res ? myiterator(set_tree.find(key), &set_tree.last_elem) : end();
 }
 
 template <typename T>
 typename set<T>::const_iterator set<T>::lower_bound(T const &key) const {
-    auto it = find(key);
-    return (it.cur_pos)? it : nonconst_iterator(set_tree.next(key), &set_tree.last_elem);
+    const node_without_data * tmp = nullptr;
+    if ((tmp = set_tree.find(key)) || (tmp = set_tree.next(key))) {
+        return myiterator(tmp, &set_tree.last_elem);
+    }
+    return end();
 }
 
 template <typename T>
@@ -110,7 +114,7 @@ typename set<T>::const_iterator set<T>::upper_bound(T const &key) const {
     const node_without_data * tmp = set_tree.next(key);
     if (!tmp)
         return end();
-    return nonconst_iterator(set_tree.next(key), &set_tree.last_elem);
+    return myiterator(set_tree.next(key), &set_tree.last_elem);
 }
 
 
@@ -127,12 +131,12 @@ void set<T>::clear() {
 template <typename T>
 typename set<T>::const_iterator set<T>::begin() const {
     if (empty()) return end();
-    return nonconst_iterator(set_tree.min_node(), &set_tree.last_elem);
+    return myiterator(set_tree.min_node(), &set_tree.last_elem);
 }
 
 template <typename T>
 typename set<T>::const_iterator set<T>::end() const {
-    return nonconst_iterator(&set_tree.last_elem, &set_tree.last_elem);
+    return myiterator(&set_tree.last_elem, &set_tree.last_elem);
 }
 
 template <typename T>

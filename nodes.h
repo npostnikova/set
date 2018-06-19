@@ -17,6 +17,14 @@ struct node_without_data {
     node_without_data(node_without_data *left, node_without_data *right, node_without_data *parent) :
             left(left), right(right), parent(parent){}
 
+    bool has_parent() {
+        return parent;
+    }
+
+    node_without_data*& get_parents_ref() {
+        return (parent->left == this) ? parent->left : parent->right;
+    }
+
     virtual void swap(node_without_data* f, node_without_data *sec) {
         node_without_data *s(sec);
 
