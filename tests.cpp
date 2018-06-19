@@ -309,7 +309,7 @@ TEST(correctness, swap_self) {
     mass_push_back(c1, {1, 2, 3, 4});
     swap(c1, c1);
 }
-/*
+
 TEST(correctness, swap_empty1) {
     set<int> c1, c2;
     mass_push_back(c1, {1, 2, 3, 4});
@@ -329,7 +329,7 @@ TEST(correctness, swap_empty_empty) {
 TEST(correctness, swap_empty_self) {
     set<int> c1;
     swap(c1, c1);
-}*/
+}
 
 TEST(correctness, clear_empty) {
     set<int> c;
@@ -679,10 +679,9 @@ TEST(correctness, swap_self_e) {
     ASSERT_EQ(3, *++s.begin());
 }
 
-/*
 TEST(correctness, erase5) {
     set<int> s;
     mass_push_back(s, {5, 2, 10, 6, 14, 7, 8});
     s.erase(s.find(5));
     expect_eq(s, {2, 6, 7, 8, 10, 14});
-}*/
+}
