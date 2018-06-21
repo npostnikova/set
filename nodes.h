@@ -23,7 +23,7 @@ struct node_without_data {
         return (parent->left == this) ? parent->left : parent->right;
     }
 
-    friend void swap(node_without_data &f, node_without_data &s) noexcept;
+    inline friend void swap(node_without_data &f, node_without_data &s) noexcept;
 protected:
     virtual void swap(node_without_data &s) noexcept {
         std::swap(this->left, s.left);
@@ -46,7 +46,7 @@ protected:
     friend void swap(tree<Y> &first, tree<Y> &second) noexcept;
 };
 
-void swap(node_without_data &f, node_without_data &s) noexcept {
+inline void swap(node_without_data &f, node_without_data &s) noexcept {
     f.swap(s);
 }
 
