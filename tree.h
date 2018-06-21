@@ -3,6 +3,7 @@
 
 #include <string>
 #include <cstdlib>
+#include <memory>
 #include "nodes.h"
 
 template <typename T>
@@ -12,7 +13,7 @@ struct tree {
 
     tree(const tree<T>& other);
 
-    ~tree() {
+    ~tree() noexcept {
         clear();
     }
 
@@ -37,17 +38,17 @@ struct tree {
 
     const node_without_data *erase(T key);
 
-    void clear() {
+    void clear() noexcept {
         clear(root);
         last_elem.parent = root = nullptr;
     }
 
-    void clear(node_without_data* cur_node);
+    void clear(node_without_data* cur_node) noexcept;
 
     const node_without_data* min_node() const;
 
     template <typename Y>
-    friend void swap(tree<Y> &first, tree<Y> &second);
+    friend void swap(tree<Y> &first, tree<Y> &second) noexcept;
 private:
     node_without_data last_elem;
 
@@ -82,6 +83,7 @@ node_without_data* tree<T>::build_tree(node_without_data* parent, node_without_d
     return res;
 }
 
+/* nothrow if T::operator</== doesn't throw */
 template <typename T>
 node_without_data* tree<T>::find(T const &key) const {
     node_without_data* tmp = root;
@@ -97,29 +99,33 @@ node_without_data* tree<T>::find(T const &key) const {
     return nullptr;
 }
 
-
+/* strong even if T::operator</== throws */
 template <typename T>
 node_without_data* tree<T>::insert(T key) {
     if (exists(key)) {
         return nullptr;
     }
+    std::unique_ptr<node_without_data> new_node(new node(key));
     if (empty()) {
-        last_elem.parent = root = new node(key);
+        last_elem.parent = root = new_node.release();
         root->right = &last_elem;
         return root;
     }
     node_without_data *tmp = root;
     while (true) {
-        if (static_cast<node *>(tmp)->key < key) {
+        new_node->parent = tmp;
+        if (static_cast<node*>(tmp)-> key < key) {
             if (!tmp->right)
-                return tmp->right = new node(key, tmp);
-            if (tmp->right == &last_elem)
-                return last_elem.parent = tmp->right = new node(key, nullptr, &last_elem, tmp);
+                return tmp->right = new_node.release();
+            if (tmp->right == &last_elem) {
+                new_node->right = &last_elem;
+                return last_elem.parent = tmp->right = new_node.release();
+            }
             tmp = tmp->right;
         } else if /* > */(!(static_cast<node *>(tmp)->key < key)
                           && !(static_cast<node *>(tmp)->key == key)) {
             if (!tmp->left)
-                return tmp->left = new node(key, tmp);
+                return tmp->left = new_node.release();
             tmp = tmp->left;
         }
     }
@@ -130,7 +136,7 @@ node_without_data * tree<T>::next(T const &val) const {
     node_without_data * current = root;
     node_without_data * successor = nullptr;
 
-    while (current != nullptr) {
+    while (current != nullptr && current != &last_elem) {
         if (static_cast<node*>(current)->key > val) {
             successor = current;
             current = current->left;
@@ -146,7 +152,7 @@ node_without_data * tree<T>::prev(T const &val) const {
     node_without_data* current = root;
     node_without_data* successor = nullptr;
 
-    while (current != nullptr) {
+    while (current != nullptr && current != &last_elem) {
         if (static_cast<node*>(current)->key < val) {
             successor = current;
             current = current->right;
@@ -193,7 +199,7 @@ const node_without_data *tree<T>::erase(T key) {
 
 
 template <typename T>
-void tree<T>::clear(node_without_data* cur_node) {
+void tree<T>::clear(node_without_data* cur_node) noexcept {
     if (cur_node) {
         clear(cur_node->left);
         if (cur_node->right != &last_elem)
@@ -212,7 +218,7 @@ const node_without_data* tree<T>::min_node() const {
 
 
 template <typename Y>
-void swap(tree<Y> &first, tree<Y> &second) {
+void swap(tree<Y> &first, tree<Y> &second) noexcept {
     using std::swap;
     node_without_data *flp = first.root && first.root->left ? first.root->left->parent : nullptr;
     node_without_data *frp = first.root && first.root->right ? first.root->right->parent : nullptr;

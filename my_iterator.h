@@ -46,51 +46,18 @@ struct my_iterator : std::iterator<std::bidirectional_iterator_tag, V, std::ptrd
     V& operator*() const {
         return static_cast<const node<V>*>(cur_pos)->key;
     }
-
 private:
     const node_without_data *cur_pos;
 
-    //template <typename P>
     const node_without_data *last_elem;
 
-    explicit my_iterator(const node_without_data *cur_pos, const node_without_data *last_elem) : cur_pos(cur_pos), last_elem(last_elem) {}
+    explicit my_iterator(const node_without_data *cur_pos,
+                         const node_without_data *last_elem) : cur_pos(cur_pos), last_elem(last_elem) {}
 
-    const node_without_data *next(const node_without_data* cur_node) const {
-        if (cur_node->right) {
-            cur_node = cur_node->right;
-            while (cur_node->left) {
-                cur_node = cur_node->left;
-            }
-        } else {
-            while (cur_node->parent != last_elem && cur_node->parent->right == cur_node) {
-                cur_node = cur_node->parent;
-            }
-            if (cur_node->parent == last_elem) {
-                return cur_node->parent;
-            }
-            cur_node = cur_node->parent;
-        }
-        return cur_node;
-    }
+    const node_without_data *next(const node_without_data* cur_node) const;
 
-    const node_without_data *prev(const node_without_data* cur_node) {
-        if (cur_node->left != nullptr) {
-            cur_node = (cur_node->left);
-
-            while (cur_node->right)
-                cur_node = cur_node->right;
-        }
-        else {
-            while (cur_node->parent != last_elem && cur_node->parent->left == cur_node)
-                cur_node = cur_node->parent;
-            if (cur_node->parent == last_elem)
-                return cur_node->parent;
-
-            cur_node = cur_node->parent;
-        }
-        return cur_node;
-    }
-
+    const node_without_data *prev(const node_without_data* cur_node);
+    
     template <typename T>
     friend struct set;
 
@@ -103,5 +70,40 @@ private:
     friend struct my_iterator;
 };
 
+template <typename T>
+const node_without_data* my_iterator<T>::next(const node_without_data* cur_node) const {
+    if (cur_node->right) {
+        cur_node = cur_node->right;
+        while (cur_node->left) {
+            cur_node = cur_node->left;
+        }
+    } else {
+        while (cur_node->parent != last_elem && cur_node->parent->right == cur_node) {
+            cur_node = cur_node->parent;
+        }
+        if (cur_node->parent == last_elem) {
+            return cur_node->parent;
+        }
+        cur_node = cur_node->parent;
+    }
+    return cur_node;
+}
+
+template <typename T>
+const node_without_data* my_iterator<T>::prev(const node_without_data* cur_node) {
+    if (cur_node->left != nullptr) {
+        cur_node = (cur_node->left);
+        while (cur_node->right)
+            cur_node = cur_node->right;
+    }
+    else {
+        while (cur_node->parent != last_elem && cur_node->parent->left == cur_node)
+            cur_node = cur_node->parent;
+        if (cur_node->parent == last_elem)
+            return cur_node->parent;
+        cur_node = cur_node->parent;
+    }
+    return cur_node;
+}
 
 #endif //LIST_MY_ITERATOR_H
