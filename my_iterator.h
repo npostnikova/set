@@ -7,6 +7,8 @@
 
 template <typename V>
 struct my_iterator : std::iterator<std::bidirectional_iterator_tag, V, std::ptrdiff_t, V*, V&> {
+    my_iterator() : cur_pos(nullptr), last_elem(nullptr) {}
+
     my_iterator(const my_iterator &it) : cur_pos(it.cur_pos), last_elem(it.last_elem) {}
 
     template <typename C, typename = typename std::enable_if<std::is_same<V, const C>::value>::type>
@@ -43,8 +45,12 @@ struct my_iterator : std::iterator<std::bidirectional_iterator_tag, V, std::ptrd
         return !(*this == other);
     }
 
-    V& operator*() const {
+    const V& operator*() const {
         return static_cast<const node<V>*>(cur_pos)->key;
+    }
+
+    const V* operator->() const {
+        return &static_cast<const node<V>*>(cur_pos)->key;
     }
 private:
     const node_without_data *cur_pos;
@@ -57,7 +63,6 @@ private:
     const node_without_data *next(const node_without_data* cur_node) const;
 
     const node_without_data *prev(const node_without_data* cur_node);
-    
     template <typename T>
     friend struct set;
 

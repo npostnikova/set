@@ -55,7 +55,8 @@ template <typename T>
 set<T>::set() {}
 
 template <typename T>
-set<T>::set(set<T> const &other) : set_tree(other.set_tree) {}
+set<T>::set(set<T> const &other)
+    try: set_tree(other.set_tree) {} catch (...) { clear(); }
 
 template <typename T>
 set<T>::~set() noexcept {

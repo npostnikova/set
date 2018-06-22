@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <memory>
+#include <iostream>
 #include "nodes.h"
 
 template <typename T>
@@ -26,17 +27,17 @@ struct tree {
 
     node_without_data* find(T const &key) const;
 
-    bool exists(T key) {
+    bool exists(T const &key) {
         return !empty() && find(key);
     }
 
-    node_without_data* insert(T key);
+    node_without_data* insert(T const &key);
 
     node_without_data * next(T const &val) const;
 
     node_without_data * prev(T const &val) const;
 
-    const node_without_data *erase(T key);
+    const node_without_data *erase(T const &key);
 
     void clear() noexcept {
         clear(root);
@@ -101,7 +102,7 @@ node_without_data* tree<T>::find(T const &key) const {
 
 /* strong even if T::operator</== throws */
 template <typename T>
-node_without_data* tree<T>::insert(T key) {
+node_without_data* tree<T>::insert(T const &key) {
     if (exists(key)) {
         return nullptr;
     }
@@ -164,13 +165,17 @@ node_without_data * tree<T>::prev(T const &val) const {
 }
 
 template <typename T>
-const node_without_data *tree<T>::erase(T key) {
+const node_without_data *tree<T>::erase(T const &key) {
     node_without_data *cur_node = find(key);
     if (!cur_node) /*doesn't exist*/ {
         return nullptr;
     }
     node_without_data *result = next(key);
     if (!cur_node->left && (!cur_node->right || cur_node->right == &last_elem)) {
+        if (!cur_node->parent) {
+            delete cur_node;
+            return root = last_elem.parent = nullptr;
+        }
         cur_node->get_parents_ref() = cur_node->right;
         last_elem.parent = cur_node->parent;
         delete cur_node;
@@ -189,6 +194,7 @@ const node_without_data *tree<T>::erase(T key) {
         node_without_data* tmp = prev(key);
         tmp->right = &last_elem;
         last_elem.parent = tmp;
+        delete cur_node;
     } else {
         auto del_key = static_cast<node*>(next(key))->key;
         erase(del_key);

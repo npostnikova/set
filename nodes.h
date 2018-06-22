@@ -23,6 +23,8 @@ struct node_without_data {
         return (parent->left == this) ? parent->left : parent->right;
     }
 
+    virtual ~node_without_data() {}
+
     inline friend void swap(node_without_data &f, node_without_data &s) noexcept;
 protected:
     virtual void swap(node_without_data &s) noexcept {
