@@ -8,9 +8,7 @@
 template <typename T>
 struct set {
     typedef my_iterator<const T> const_iterator;
-    typedef my_iterator<T> my_iterator;
     typedef const_iterator iterator;
-    typedef std::reverse_iterator<my_iterator> my_reverse_iterator;
     typedef std::reverse_iterator<const_iterator> reverse_const_iterator;
     typedef reverse_const_iterator reverse_iterator;
 
@@ -86,21 +84,21 @@ template <typename T>
 typename set<T>::const_iterator
 set<T>::erase(const_iterator pos) {
     if (auto tmp = set_tree.erase(*pos))
-        return my_iterator(tmp, &set_tree.last_elem);
+        return iterator(tmp, &set_tree.last_elem);
     return end();
 }
 
 template <typename T>
 typename set<T>::const_iterator set<T>::find(T const &key) const {
     auto res = set_tree.find(key);
-    return res ? my_iterator(set_tree.find(key), &set_tree.last_elem) : end();
+    return res ? iterator(set_tree.find(key), &set_tree.last_elem) : end();
 }
 
 template <typename T>
 typename set<T>::const_iterator set<T>::lower_bound(T const &key) const {
     const node_without_data * tmp = nullptr;
     if ((tmp = set_tree.find(key)) || (tmp = set_tree.next(key))) {
-        return my_iterator(tmp, &set_tree.last_elem);
+        return iterator(tmp, &set_tree.last_elem);
     }
     return end();
 }
@@ -110,7 +108,7 @@ typename set<T>::const_iterator set<T>::upper_bound(T const &key) const {
     const node_without_data * tmp = set_tree.next(key);
     if (!tmp)
         return end();
-    return my_iterator(set_tree.next(key), &set_tree.last_elem);
+    return iterator(set_tree.next(key), &set_tree.last_elem);
 }
 
 
@@ -127,12 +125,12 @@ void set<T>::clear() noexcept {
 template <typename T>
 typename set<T>::const_iterator set<T>::begin() const {
     if (empty()) return end();
-    return my_iterator(set_tree.min_node(), &set_tree.last_elem);
+    return iterator(set_tree.min_node(), &set_tree.last_elem);
 }
 
 template <typename T>
 typename set<T>::const_iterator set<T>::end() const {
-    return my_iterator(&set_tree.last_elem, &set_tree.last_elem);
+    return iterator(&set_tree.last_elem, &set_tree.last_elem);
 }
 
 template <typename T>

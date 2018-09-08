@@ -9,7 +9,7 @@
 
 template <typename T>
 struct tree {
-    typedef node<T> node;
+    typedef node<T> tree_node;
     tree() : last_elem(), root(nullptr) {}
 
     tree(const tree<T>& other);
@@ -72,7 +72,7 @@ node_without_data* tree<T>::build_tree(node_without_data* parent, node_without_d
                               tree &res_tree, const tree &to_copy_tree) {
     if (!to_copy)
         return nullptr;
-    node_without_data* res = new node(static_cast<node*>(to_copy)->key, parent);
+    node_without_data* res = new tree_node(static_cast<tree_node*>(to_copy)->key, parent);
 
     res->left = build_tree(res, to_copy->left, res_tree, to_copy_tree);
     if (to_copy->right == &to_copy_tree.last_elem) {
@@ -89,10 +89,10 @@ template <typename T>
 node_without_data* tree<T>::find(T const &key) const {
     node_without_data* tmp = root;
     while (tmp && tmp != &last_elem) {
-        if (static_cast<node*>(tmp)->key < key)
+        if (static_cast<tree_node*>(tmp)->key < key)
             tmp = tmp->right;
-        else if /* > */ (!(static_cast<node*>(tmp)->key < key)
-                         && !(static_cast<node*>(tmp)->key == key))
+        else if /* > */ (!(static_cast<tree_node*>(tmp)->key < key)
+                         && !(static_cast<tree_node*>(tmp)->key == key))
             tmp = tmp->left;
         else
             return tmp;
@@ -106,7 +106,7 @@ node_without_data* tree<T>::insert(T const &key) {
     if (exists(key)) {
         return nullptr;
     }
-    std::unique_ptr<node_without_data> new_node(new node(key));
+    std::unique_ptr<node_without_data> new_node(new tree_node(key));
     if (empty()) {
         last_elem.parent = root = new_node.release();
         root->right = &last_elem;
@@ -115,7 +115,7 @@ node_without_data* tree<T>::insert(T const &key) {
     node_without_data *tmp = root;
     while (true) {
         new_node->parent = tmp;
-        if (static_cast<node*>(tmp)-> key < key) {
+        if (static_cast<tree_node*>(tmp)-> key < key) {
             if (!tmp->right)
                 return tmp->right = new_node.release();
             if (tmp->right == &last_elem) {
@@ -123,8 +123,8 @@ node_without_data* tree<T>::insert(T const &key) {
                 return last_elem.parent = tmp->right = new_node.release();
             }
             tmp = tmp->right;
-        } else if /* > */(!(static_cast<node *>(tmp)->key < key)
-                          && !(static_cast<node *>(tmp)->key == key)) {
+        } else if /* > */(!(static_cast<tree_node *>(tmp)->key < key)
+                          && !(static_cast<tree_node *>(tmp)->key == key)) {
             if (!tmp->left)
                 return tmp->left = new_node.release();
             tmp = tmp->left;
@@ -138,7 +138,7 @@ node_without_data * tree<T>::next(T const &val) const {
     node_without_data * successor = nullptr;
 
     while (current != nullptr && current != &last_elem) {
-        if (static_cast<node*>(current)->key > val) {
+        if (static_cast<tree_node*>(current)->key > val) {
             successor = current;
             current = current->left;
         } else {
@@ -154,7 +154,7 @@ node_without_data * tree<T>::prev(T const &val) const {
     node_without_data* successor = nullptr;
 
     while (current != nullptr && current != &last_elem) {
-        if (static_cast<node*>(current)->key < val) {
+        if (static_cast<tree_node*>(current)->key < val) {
             successor = current;
             current = current->right;
         } else {
@@ -196,9 +196,9 @@ const node_without_data *tree<T>::erase(T const &key) {
         last_elem.parent = tmp;
         delete cur_node;
     } else {
-        auto del_key = static_cast<node*>(next(key))->key;
+        auto del_key = static_cast<tree_node*>(next(key))->key;
         erase(del_key);
-        static_cast<node*>(cur_node)->key = del_key;
+        static_cast<tree_node*>(cur_node)->key = del_key;
     }
     return result;
 }

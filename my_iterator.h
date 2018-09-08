@@ -40,17 +40,18 @@ struct my_iterator : std::iterator<std::bidirectional_iterator_tag, V, std::ptrd
     bool operator==(my_iterator<Z> const &other) const {
         return cur_pos == other.cur_pos;
     }
+
     template <typename Z>
     bool operator!=(my_iterator<Z> const &other) const {
         return !(*this == other);
     }
 
     const V& operator*() const {
-        return static_cast<const node<V>*>(cur_pos)->key;
+        return static_cast<const node<typename std::remove_const<V>::type>*>(cur_pos)->key;
     }
 
     const V* operator->() const {
-        return &static_cast<const node<V>*>(cur_pos)->key;
+        return &static_cast<const node<typename std::remove_const<V>::type>*>(cur_pos)->key;
     }
 private:
     const node_without_data *cur_pos;
